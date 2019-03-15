@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.sharding.mapper.SequenceMapper">
+
+
+    <select id="getCurrentSequenceByName" resultType="Long">
+        SELECT
+          current_value + increment
+        FROM sequence where name = #{sequenceName}
+    </select>
+
+
+    <!-- (@Param("sequenceName") String sequenceName,
+     @Param("currentSequence") Long CurrentSequence,
+     @Param("increment") Integer increment);-->
+    <insert id="insertSequence">
+        INSERT INTO
+        sequence
+        (name,current_value,increment)
+        VALUES
+        (#{sequenceName}, #{currentSequence}, #{increment})
+    </insert>
+
+    <update id="updateSequence">
+        update sequence set current_value = current_value + increment
+        where name = #{sequenceName}
+    </update>
+
+</mapper>
