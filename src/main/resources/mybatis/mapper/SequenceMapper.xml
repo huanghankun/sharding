@@ -10,9 +10,6 @@
     </select>
 
 
-    <!-- (@Param("sequenceName") String sequenceName,
-     @Param("currentSequence") Long CurrentSequence,
-     @Param("increment") Integer increment);-->
     <insert id="insertSequence">
         INSERT INTO
         sequence
