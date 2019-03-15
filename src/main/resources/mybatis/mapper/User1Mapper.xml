@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.sharding.mapper.User1Mapper">
+    <resultMap id="BaseResultMap" type="com.example.sharding.entity.UserEntity">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="orderId" property="order_id" jdbcType="BIGINT"/>
+        <result column="userId" property="user_id" jdbcType="BIGINT"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="passWord" property="passWord" jdbcType="VARCHAR"/>
+        <result column="user_sex" property="userSex" javaType="com.example.sharding.entity.UserSexEnum"/>
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,province,city, user_id,order_id,userName, passWord, user_sex, nick_name
+    </sql>
+
+    <select id="getUsersByProvince" resultMap="BaseResultMap" parameterType = "String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_order_${province} where province = #{province} order by id
+    </select>
+
+
+    <insert id="insert" parameterType="com.example.sharding.entity.UserEntity">
+        INSERT INTO
+        t_order_${province}
+        (id,province,city,order_id,user_id,userName,passWord,user_sex,nick_name)
+        VALUES
+        (#{id},#{province},#{city}, #{orderId}, #{userId}, #{userName}, #{passWord}, #{userSex}, #{nickName})
+    </insert>
+
+</mapper>
