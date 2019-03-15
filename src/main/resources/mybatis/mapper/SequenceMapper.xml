@@ -19,7 +19,7 @@
     </insert>
 
     <update id="updateSequence">
-        update sequence set current_value = current_value + increment
+        update sequence set current_value = current_value + #{increment}
         where name = #{sequenceName}
     </update>
 

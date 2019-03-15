@@ -35,5 +35,5 @@ public interface SequenceMapper {
      * @param sequenceName
      * @return
      */
-    Integer updateSequence(@Param("sequenceName") String sequenceName);
+    Integer updateSequence(@Param("sequenceName") String sequenceName,@Param("increment") Integer increment);
 }

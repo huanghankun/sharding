@@ -22,7 +22,7 @@ import java.util.UUID;
 @Service
 @RestController
 public class UserController {
-    private static final int INSERT_NUM = 100;
+    private static final int INSERT_NUM = 10000;
     @Autowired
     private User1Service user1Service;
 
@@ -39,33 +39,46 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "update")
-    public List<UserEntity> updateTransactional() {
+    public Integer updateTransactional() {
         List<UserEntity> userList = new ArrayList<>();
         for (int i = 0; i < INSERT_NUM; i++) {
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-            UserEntity user2 = new UserEntity();
-            user2.setProvince(ProvinceEnum.GUANGDONG);
-            user2.setCity(new Random().nextBoolean() ? ("ZHAOQING") : (new Random().nextBoolean() ? "SHENZHEN" : "GUANGZHOU"));
-            user2.setOrderId(new Long(new Random().nextInt(100) + 1));
-            user2.setNickName("hhk[" + uuid.substring(0, 5) + "]");
-            user2.setPassWord(uuid);
-            user2.setUserName("hhk[" + uuid.substring(5, 10) + "]");
-            user2.setUserSex(new Random().nextBoolean() ? UserSexEnum.MAN : UserSexEnum.WOMAN);
+            UserEntity user2 = createUserGuangdong();
+            user2 = new Random().nextBoolean() ? createUserGuangdong():createUserBeijing();
             userList.add(user2);
         }
-        for (int i = 0; i < INSERT_NUM; i++) {
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-            UserEntity user2 = new UserEntity();
-            user2.setProvince(ProvinceEnum.BEIJING);
-            user2.setCity("BEIJING");
-            user2.setOrderId(new Long(new Random().nextInt(100) + 1));
-            user2.setNickName("hhk[" + uuid.substring(0, 5) + "]");
-            user2.setPassWord(uuid);
-            user2.setUserName("hhk[" + uuid.substring(5, 10) + "]");
-            user2.setUserSex(new Random().nextBoolean() ? UserSexEnum.MAN : UserSexEnum.WOMAN);
-            userList.add(user2);
-        }
+
         user1Service.insertUserList(userList);
-        return userList;
+        return userList.size();
     }
+
+    private UserEntity createUserGuangdong() {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        UserEntity user2 = new UserEntity();
+        user2.setProvince(ProvinceEnum.GUANGDONG);
+        user2.setCity(new Random().nextBoolean() ? ("ZHAOQING") : (new Random().nextBoolean() ? "SHENZHEN" : "GUANGZHOU"));
+        user2.setOrderId(new Long(new Random().nextInt(100) + 1));
+        user2.setNickName("hhk[" + uuid.substring(0, 5) + "]");
+        user2.setPassWord(uuid);
+        user2.setUserName("hhk[" + uuid.substring(5, 10) + "]");
+        user2.setUserSex(new Random().nextBoolean() ? UserSexEnum.MAN : UserSexEnum.WOMAN);
+        return user2;
+    }
+
+    /**
+     *
+     *
+     */
+    private UserEntity createUserBeijing() {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        UserEntity user2 = new UserEntity();
+        user2.setProvince(ProvinceEnum.BEIJING);
+        user2.setCity("BEIJING");
+        user2.setOrderId(new Long(new Random().nextInt(100) + 1));
+        user2.setNickName("hhk[" + uuid.substring(0, 5) + "]");
+        user2.setPassWord(uuid);
+        user2.setUserName("hhk[" + uuid.substring(5, 10) + "]");
+        user2.setUserSex(new Random().nextBoolean() ? UserSexEnum.MAN : UserSexEnum.WOMAN);
+       return user2;
+    }
+
 }
