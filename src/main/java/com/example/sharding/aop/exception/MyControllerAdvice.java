@@ -40,7 +40,7 @@ public class MyControllerAdvice {
      */
     @ResponseBody
     @ExceptionHandler(value = RuntimeException.class)
-    public Map RuntimeExceptionHandler(RuntimeException ex) {
+    public Map runtimeExceptionHandler(RuntimeException ex) {
 
         Map map = new HashMap();
         map.put("code", 101);

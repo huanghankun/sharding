@@ -99,7 +99,7 @@ public class EntityUtil {
      * @return
      */
     public static String columnName2EntityAttrName(String columnName) {
-        if (columnName == null || columnName.trim().equals("")) {
+        if (columnName == null || "".equals(columnName.trim())) {
             return "";
         }
         byte[] bs = columnName.toLowerCase().getBytes();
@@ -322,8 +322,9 @@ public class EntityUtil {
             return null;
         }
         int startIndex = 0;
-        if (fieldName.charAt(0) == '_')
+        if (fieldName.charAt(0) == '_') {
             startIndex = 1;
+        }
         return "get" + fieldName.substring(startIndex, startIndex + 1).toUpperCase()
                         + fieldName.substring(startIndex + 1);
     }
