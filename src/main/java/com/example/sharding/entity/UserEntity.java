@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public class UserEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final Long serialVersionUID = 1L;
     private Long id;
     private ProvinceEnum province;
     private String city;
@@ -18,6 +18,36 @@ public class UserEntity implements Serializable {
     private String passWord;
     private UserSexEnum userSex;
     private String nickName;
+    private Integer orderStatus;
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("UserEntity{");
+        sb.append("id=").append(id);
+        sb.append(", province=").append(province);
+        sb.append(", city='").append(city).append('\'');
+        sb.append(", orderId=").append(orderId);
+        sb.append(", userId=").append(userId);
+        sb.append(", userName='").append(userName).append('\'');
+        sb.append(", passWord='").append(passWord).append('\'');
+        sb.append(", userSex=").append(userSex);
+        sb.append(", nickName='").append(nickName).append('\'');
+        sb.append(", orderStatus='").append(orderStatus).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public static Long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 
     public Long getId() {
         return id;
@@ -91,19 +121,4 @@ public class UserEntity implements Serializable {
         this.nickName = nickName;
     }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("UserEntity{");
-        sb.append("id=").append(id);
-        sb.append(", province=").append(province);
-        sb.append(", city='").append(city).append('\'');
-        sb.append(", orderId=").append(orderId);
-        sb.append(", userId=").append(userId);
-        sb.append(", userName='").append(userName).append('\'');
-        sb.append(", passWord='").append(passWord).append('\'');
-        sb.append(", userSex=").append(userSex);
-        sb.append(", nickName='").append(nickName).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
 }

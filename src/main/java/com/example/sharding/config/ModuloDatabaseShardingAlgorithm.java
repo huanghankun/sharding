@@ -26,7 +26,7 @@ public class ModuloDatabaseShardingAlgorithm implements SingleKeyDatabaseShardin
     @Override
     public Collection<String> doInSharding(Collection<String> databaseNames, ShardingValue<String> shardingValue) {
         /*Collection<String> result = new LinkedHashSet<>(databaseNames.size());
-        for (Long value : shardingValue.getValues()) {
+        for (Integer value : shardingValue.getValues()) {
             for (String tableName : databaseNames) {
                 if (tableName.endsWith(value % 2 + "")) {
                     result.add(tableName);
@@ -40,8 +40,8 @@ public class ModuloDatabaseShardingAlgorithm implements SingleKeyDatabaseShardin
     @Override
     public Collection<String> doBetweenSharding(Collection<String> databaseNames, ShardingValue<String> shardingValue) {
     /*    Collection<String> result = new LinkedHashSet<>(databaseNames.size());
-        Range<Long> range = (Range<Long>) shardingValue.getValueRange();
-        for (Long i = range.lowerEndpoint(); i <= range.upperEndpoint(); i++) {
+        Range<Integer> range = (Range<Integer>) shardingValue.getValueRange();
+        for (Integer i = range.lowerEndpoint(); i <= range.upperEndpoint(); i++) {
             for (String each : databaseNames) {
                 if (each.endsWith(i % 2 + "")) {
                     result.add(each);

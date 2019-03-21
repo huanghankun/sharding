@@ -24,4 +24,19 @@ public interface User1Mapper {
      * @param user
      */
     void insert(UserEntity user);
+
+    /**
+     * 通过ID查询
+     * @param user
+     * @return
+     */
+    UserEntity queryById(UserEntity user);
+
+    /**
+     * 更新用户
+     * @param user
+     */
+    void updateById(UserEntity user);
+
+
 }

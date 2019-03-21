@@ -11,13 +11,21 @@
         <result column="passWord" property="passWord" jdbcType="VARCHAR"/>
         <result column="user_sex" property="userSex" javaType="com.example.sharding.entity.UserSexEnum"/>
         <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+        <result column="order_status" property="orderStatus" jdbcType="TINYINT"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,province,city, user_id,order_id,userName, passWord, user_sex, nick_name
+        id,province,city, user_id,order_id,userName, passWord, user_sex, nick_name,order_status
     </sql>
 
-    <select id="getUsersByProvince" resultMap="BaseResultMap" parameterType = "String">
+    <select id="queryById" resultMap="BaseResultMap" parameterType="com.example.sharding.entity.UserEntity">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_order_${province} where id = #{id}
+    </select>
+
+    <select id="getUsersByProvince" resultMap="BaseResultMap" parameterType="String">
         SELECT
         <include refid="Base_Column_List"/>
         FROM t_order_${province} where province = #{province} order by id
@@ -27,9 +35,25 @@
     <insert id="insert" parameterType="com.example.sharding.entity.UserEntity">
         INSERT INTO
         t_order_${province}
-        (id,province,city,order_id,user_id,userName,passWord,user_sex,nick_name)
+        (id,province,city,order_id,user_id,userName,passWord,user_sex,nick_name,order_status)
         VALUES
-        (#{id},#{province},#{city}, #{orderId}, #{userId}, #{userName}, #{passWord}, #{userSex}, #{nickName})
+        (#{id},#{province},#{city}, #{orderId}, #{userId}, #{userName}, #{passWord}, #{userSex}, #{nickName},#{orderStatus})
+    </insert>
+
+
+    <insert id="updateById" parameterType="com.example.sharding.entity.UserEntity">
+        UPDATE  t_order_${province}
+        set
+        province=#{province},
+        city=#{city},
+        order_id=#{orderId},
+        user_id=#{userId},
+        userName=#{userName},
+        passWord=#{passWord},
+        user_sex=#{userSex},
+        nick_name= #{nickName},
+        order_status= #{orderStatus}
+        where id = #{id}
     </insert>
 
 </mapper>

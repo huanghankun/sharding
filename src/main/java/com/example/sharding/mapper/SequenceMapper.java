@@ -26,7 +26,7 @@ public interface SequenceMapper {
      * @param increment
      * @return
      */
-    Integer insertSequence(@Param("sequenceName") String sequenceName,
+    Long insertSequence(@Param("sequenceName") String sequenceName,
                            @Param("currentSequence") Long currentSequence,
                            @Param("increment") Integer increment);
 
@@ -35,5 +35,5 @@ public interface SequenceMapper {
      * @param sequenceName
      * @return
      */
-    Integer updateSequence(@Param("sequenceName") String sequenceName,@Param("increment") Integer increment);
+    Long updateSequence(@Param("sequenceName") String sequenceName,@Param("increment") Integer increment);
 }

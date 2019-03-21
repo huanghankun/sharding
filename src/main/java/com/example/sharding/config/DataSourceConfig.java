@@ -18,11 +18,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 数据源及分表配置
@@ -31,6 +35,30 @@ import java.util.*;
 @Configuration
 @MapperScan(basePackages = "com.example.sharding.mapper", sqlSessionTemplateRef = "test1SqlSessionTemplate")
 public class DataSourceConfig {
+
+
+    /**
+     * 自定义异步线程池
+     * @return
+     */
+    @Bean
+    public AsyncTaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("Anno-Executor");
+        executor.setMaxPoolSize(10);
+
+        // 设置拒绝策略
+        executor.setRejectedExecutionHandler(new RejectedExecutionHandler() {
+            @Override
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                // .....
+            }
+        });
+        // 使用预定义的异常处理类
+        // executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+
+        return executor;
+    }
 
 
     /**
@@ -142,6 +170,9 @@ public class DataSourceConfig {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource);
         bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/*.xml"));
+        bean.setConfigLocation(new PathMatchingResourcePatternResolver().getResource("classpath:mybatis-config.xml"));
+
+
         return bean.getObject();
     }
 
@@ -150,4 +181,5 @@ public class DataSourceConfig {
     public SqlSessionTemplate testSqlSessionTemplate(@Qualifier("test1SqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
+
 }

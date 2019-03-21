@@ -34,5 +34,16 @@ public interface User1Service {
      */
     public void insertUserList(List<UserEntity> userList);
 
+    /**
+     * 通过ID查询
+     * @return
+     */
+    public UserEntity queryById(UserEntity user);
+
+    /**
+     * 更新
+     * @return
+     */
+     void updateById(UserEntity user);
 
 }

@@ -1,6 +1,7 @@
 package com.example.sharding.controller;
 
 
+import com.example.sharding.common.BusinessConstant;
 import com.example.sharding.entity.ProvinceEnum;
 import com.example.sharding.entity.UserEntity;
 import com.example.sharding.entity.UserSexEnum;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @Service
 @RestController
 public class UserController {
-    private static final int INSERT_NUM = 10000;
+    private static final int INSERT_NUM = 2;
     @Autowired
     private User1Service user1Service;
 
@@ -48,6 +49,10 @@ public class UserController {
         }
 
         user1Service.insertUserList(userList);
+        userList.get(0).setOrderStatus(BusinessConstant.OrderStatus.APPROVING);
+        user1Service.updateById(userList.get(0));
+        userList.get(0).setOrderStatus(BusinessConstant.OrderStatus.SAVED);
+        user1Service.updateById(userList.get(0));
         return userList.size();
     }
 
