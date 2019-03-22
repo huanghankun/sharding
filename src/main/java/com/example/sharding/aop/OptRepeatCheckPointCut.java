@@ -80,22 +80,23 @@ public class OptRepeatCheckPointCut {
      * 检查是否重复操作
      * 1,
      *
-     * @param paramMap
-     * @param returnMap
+     * @param toMap
+     * @param fromMap
      */
-    private void checkRepeat(Map<String, Object> paramMap, Map<String, Object> returnMap) {
-        Integer statusTo = (Integer) paramMap.get("orderStatus");
-        Integer statusFrom = (Integer) returnMap.get("orderStatus");
-        Map<Integer, List> transitionMap = BusinessConstant.OrderStatus.getTransitionMap();
-        List<Integer> tList = transitionMap.get(statusTo);
-        if(!tList.contains(statusFrom)){
-            throw new MyException("9999","状态不可以从 " + statusFrom + " 到 " + statusTo);
+    private void checkRepeat(Map<String, Object> toMap, Map<String, Object> fromMap) {
+        Integer statusTo = (Integer) toMap.get("orderStatus");
+        Integer statusFrom = (Integer) fromMap.get("orderStatus");
+        Map<Integer, List<BusinessConstant.OrderStatusEnum>> transitionMap = BusinessConstant.OrderStatusEnum.getTransitionMap();
+        List<BusinessConstant.OrderStatusEnum> tList = transitionMap.get(statusTo);
+        LOGGER.info("statusFrom[{}],statusTo[{}]", statusFrom, statusTo);
+        if(!tList.contains(BusinessConstant.OrderStatusEnum.getByCode(statusFrom))){
+            throw new MyException("9999","状态不可以从 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusFrom) + " 到 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusTo) );
 
         }
 
 //        Object dataVersionTo = paramMap.get("dataVersion");
 //        Object dataVersionFrom = returnMap.get("dataVersion");
-        LOGGER.info("statusFrom[{}],statusTo[{}]", statusFrom, statusTo);
+
 //        LOGGER.info("dataVersionFrom[{}],dataVersionTo[{}]", dataVersionFrom, dataVersionTo);
 
 

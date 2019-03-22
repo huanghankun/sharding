@@ -7,6 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ShardingApplicationTests {
@@ -20,6 +21,13 @@ public class ShardingApplicationTests {
             System.out.println(str);
         }
         System.out.println("###############");
+        Comparator c = new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return 6;
+            }
+
+        };
         Collections.sort(list, (String a, String b) -> -1);
         for( String str:list){
             System.out.println(str);

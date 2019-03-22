@@ -19,6 +19,84 @@ public class BusinessConstant {
      *
      * @author hhk
      */
+
+    /**
+     * Created by Kane on 2018/1/17.
+     *
+     * @author hhk
+     */
+    public enum OrderStatusEnum {
+        SAVED(1, "保存"),
+        CANCEED(2, "作废"),
+        APPROVING(3, "提交审批"),
+        APPROVED(4, "审批通过"),
+        APPROVE_REFUSED(5, "审批决绝");
+
+        private Integer code;
+        private String msg;
+
+        OrderStatusEnum(Integer code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        /**
+         * 根据枚举的code获取msg的方法
+         *
+         * @param code
+         * @return
+         */
+        public static String getMsgByCode(Integer code) {
+            for (OrderStatusEnum responseEnum : OrderStatusEnum.values()) {
+                if (responseEnum.getCode().equals(code)) {
+                    return responseEnum.getMsg();
+                }
+            }
+            return null;
+        }
+
+        /**
+         * 根据枚举的code获取msg的方法
+         *
+         * @param code
+         * @return
+         */
+        public static OrderStatusEnum getByCode(Integer code) {
+            for (OrderStatusEnum responseEnum : OrderStatusEnum.values()) {
+                if (responseEnum.getCode().equals(code)) {
+                    return responseEnum;
+                }
+            }
+            return null;
+        }
+        public Integer getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        /**
+         * 状态流转
+         */
+        public static Map<Integer, List<OrderStatusEnum>> getTransitionMap() {
+            Map<Integer, List<OrderStatusEnum>> transitionMap = new HashMap<>();
+            //保存->保存,审批决绝->保存
+            transitionMap.put(SAVED.code, Arrays.asList(SAVED, APPROVE_REFUSED));
+            //保存->提交审批
+            transitionMap.put(APPROVING.code, Arrays.asList(SAVED));
+            //提交审批->审批通过
+            transitionMap.put(APPROVED.code, Arrays.asList(APPROVING));
+            //提交审批->审批拒绝
+            transitionMap.put(APPROVE_REFUSED.code, Arrays.asList(APPROVING));
+            //提交拒绝->作废，保存->作废
+            transitionMap.put(CANCEED.code, Arrays.asList(SAVED, APPROVE_REFUSED));
+            return transitionMap;
+        }
+
+    }
+
     public static class OrderStatus {
         /**
          * 保存
@@ -166,7 +244,7 @@ public class BusinessConstant {
         public static Map<Integer, List> getTransitionMap() {
             Map<Integer, List> transitionMap = new HashMap<>();
             //保存->保存,审批决绝->保存
-            transitionMap.put(SAVED, Arrays.asList(SAVED,APPROVE_REFUSED));
+            transitionMap.put(SAVED, Arrays.asList(SAVED, APPROVE_REFUSED));
             //保存->提交审批
             transitionMap.put(APPROVING, Arrays.asList(SAVED));
             //提交审批->审批通过
@@ -174,7 +252,7 @@ public class BusinessConstant {
             //提交审批->审批拒绝
             transitionMap.put(APPROVE_REFUSED, Arrays.asList(APPROVING));
             //提交拒绝->作废，保存->作废
-            transitionMap.put(CANCEED, Arrays.asList(SAVED,APPROVE_REFUSED));
+            transitionMap.put(CANCEED, Arrays.asList(SAVED, APPROVE_REFUSED));
             return transitionMap;
         }
     }
