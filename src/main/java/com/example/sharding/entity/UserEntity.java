@@ -19,6 +19,15 @@ public class UserEntity implements Serializable {
     private UserSexEnum userSex;
     private String nickName;
     private Integer orderStatus;
+    private Integer dataVersion;
+
+    public Integer getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(Integer dataVersion) {
+        this.dataVersion = dataVersion;
+    }
 
     @Override
     public String toString() {
@@ -32,7 +41,8 @@ public class UserEntity implements Serializable {
         sb.append(", passWord='").append(passWord).append('\'');
         sb.append(", userSex=").append(userSex);
         sb.append(", nickName='").append(nickName).append('\'');
-        sb.append(", orderStatus='").append(orderStatus).append('\'');
+        sb.append(", orderStatus=").append(orderStatus);
+        sb.append(", dataVersion=").append(dataVersion);
         sb.append('}');
         return sb.toString();
     }

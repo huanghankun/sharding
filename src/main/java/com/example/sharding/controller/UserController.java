@@ -18,6 +18,7 @@ import java.util.UUID;
 
 /**
  * Created by Kane on 2018/1/17.
+ *
  * @author hhk
  */
 @Service
@@ -44,15 +45,16 @@ public class UserController {
         List<UserEntity> userList = new ArrayList<>();
         for (int i = 0; i < INSERT_NUM; i++) {
             UserEntity user2 = createUserGuangdong();
-            user2 = new Random().nextBoolean() ? createUserGuangdong():createUserBeijing();
+            user2 = new Random().nextBoolean() ? createUserGuangdong() : createUserBeijing();
             userList.add(user2);
         }
-
+        UserEntity user = userList.get(0);
         user1Service.insertUserList(userList);
-        userList.get(0).setOrderStatus(BusinessConstant.OrderStatus.APPROVING);
-        user1Service.updateById(userList.get(0));
-        userList.get(0).setOrderStatus(BusinessConstant.OrderStatus.SAVED);
-        user1Service.updateById(userList.get(0));
+        user.setOrderStatus(BusinessConstant.OrderStatus.APPROVING);
+//        user.setDataVersion(2);
+        user1Service.updateById(user);
+        user.setOrderStatus(BusinessConstant.OrderStatus.SAVED);
+        user1Service.updateById(user);
         return userList.size();
     }
 
@@ -83,7 +85,7 @@ public class UserController {
         user2.setPassWord(uuid);
         user2.setUserName("hhk[" + uuid.substring(5, 10) + "]");
         user2.setUserSex(new Random().nextBoolean() ? UserSexEnum.MAN : UserSexEnum.WOMAN);
-       return user2;
+        return user2;
     }
 
 }

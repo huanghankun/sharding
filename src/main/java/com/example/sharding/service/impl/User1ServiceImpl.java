@@ -1,6 +1,7 @@
 package com.example.sharding.service.impl;
 
 import com.example.sharding.aop.OptRepeatCheck;
+import com.example.sharding.common.BusinessConstant;
 import com.example.sharding.entity.UserEntity;
 import com.example.sharding.mapper.SequenceMapper;
 import com.example.sharding.mapper.User1Mapper;
@@ -46,7 +47,8 @@ public class User1ServiceImpl implements User1Service {
         Long id = sequenceService.getNextSequenceByClass(UserEntity.class);
         user.setId(id);
         user.setUserId(id);
-        user.setOrderStatus(1);
+        user.setOrderStatus(BusinessConstant.OrderStatusEnum.SAVED.getCode());
+        user.setDataVersion(1);
         user1Mapper.insert(user);
         try {
             Future<String> task1 = sequenceService.doTaskOne();

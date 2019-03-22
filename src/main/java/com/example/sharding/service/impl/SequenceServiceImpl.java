@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.Random;
 import java.util.Set;
@@ -33,9 +34,13 @@ public class SequenceServiceImpl implements SequenceService {
     private static final int INCREMENT = 100;
     @Resource
     private SequenceMapper sequenceMapper;
-//    @Resource
-//    private SequenceServiceImpl sequenceService;
 
+    private SequenceServiceImpl sequenceService;
+
+    @PostConstruct
+    public void init() {
+        sequenceService = SpringUtil.getBean(this.getClass());
+    }
 
     /**
      * @param clazz
@@ -47,7 +52,6 @@ public class SequenceServiceImpl implements SequenceService {
          * 1,当地缓存是否有可用sequence
          */
         if (sequenceSet.isEmpty()) {
-            SequenceServiceImpl sequenceService = SpringUtil.getBean(SequenceServiceImpl.class);
             sequenceService.getNextSequence(clazz.getName());
         }
         /**
@@ -96,16 +100,14 @@ public class SequenceServiceImpl implements SequenceService {
      */
 
     /**
-     *
      * 任务一
-     *
      *
      * @return
      * @throws Exception
      */
     @Async
     @Override
-    public Future<String> doTaskOne() throws Exception{
+    public Future<String> doTaskOne() throws Exception {
         System.out.println("开始做任务一");
         long start = System.currentTimeMillis();
         Thread.sleep(new Random().nextInt(10000));

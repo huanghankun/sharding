@@ -17,9 +17,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Aspect
 @Component
@@ -89,16 +89,19 @@ public class OptRepeatCheckPointCut {
         Map<Integer, List<BusinessConstant.OrderStatusEnum>> transitionMap = BusinessConstant.OrderStatusEnum.getTransitionMap();
         List<BusinessConstant.OrderStatusEnum> tList = transitionMap.get(statusTo);
         LOGGER.info("statusFrom[{}],statusTo[{}]", statusFrom, statusTo);
-        if(!tList.contains(BusinessConstant.OrderStatusEnum.getByCode(statusFrom))){
-            throw new MyException("9999","状态不可以从 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusFrom) + " 到 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusTo) );
-
+        if (!tList.contains(BusinessConstant.OrderStatusEnum.getByCode(statusFrom))) {
+            throw new MyException("9999", "状态不可以从 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusFrom) + " 到 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusTo));
         }
 
-//        Object dataVersionTo = paramMap.get("dataVersion");
-//        Object dataVersionFrom = returnMap.get("dataVersion");
+        Integer dataVersionTo = (Integer) toMap.get("dataVersion");
+        Integer dataVersionFrom = (Integer) fromMap.get("dataVersion");
 
-//        LOGGER.info("dataVersionFrom[{}],dataVersionTo[{}]", dataVersionFrom, dataVersionTo);
-
+        int compare = Integer.compare(dataVersionTo, dataVersionFrom);
+        if (compare > 0) {
+            throw new MyException("9998", " , 请勿捏造操作版本 = " + dataVersionTo + ",当前数据库最新版本 = " + dataVersionFrom);
+        } else if (compare < 0) {
+            throw new MyException("9998", "当前数据版本 = " + dataVersionFrom + " , 操作版本 = " + dataVersionTo);
+        }
 
     }
 

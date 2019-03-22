@@ -1,5 +1,8 @@
 package com.example.sharding.aop.exception;
 
+import com.example.sharding.aop.OptRepeatCheckPointCut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,6 +18,7 @@ import java.util.Map;
  */
 @ControllerAdvice
 public class MyControllerAdvice {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyControllerAdvice.class);
 
     /**
      * 全局异常捕捉处理
@@ -25,6 +29,7 @@ public class MyControllerAdvice {
     @ResponseBody
     @ExceptionHandler(value = Exception.class)
     public Map errorHandler(Exception ex) {
+        LOGGER.error(ex.getMessage(),ex);
         Map map = new HashMap();
         map.put("code", 100);
         map.put("msg", ex.getMessage());
@@ -41,7 +46,7 @@ public class MyControllerAdvice {
     @ResponseBody
     @ExceptionHandler(value = RuntimeException.class)
     public Map runtimeExceptionHandler(RuntimeException ex) {
-
+        LOGGER.error(ex.getMessage(),ex);
         Map map = new HashMap();
         map.put("code", 101);
         map.put("msg", ex.getMessage());
@@ -57,7 +62,7 @@ public class MyControllerAdvice {
     @ResponseBody
     @ExceptionHandler(value = MyException.class)
     public Map myExceptionHandler(MyException ex) {
-
+        LOGGER.error(ex.getMessage(),ex);
         Map map = new HashMap();
         map.put("code", ex.getCode());
         map.put("msg", ex.getMessage());
