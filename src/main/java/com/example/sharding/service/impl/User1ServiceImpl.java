@@ -8,6 +8,8 @@ import com.example.sharding.mapper.User1Mapper;
 import com.example.sharding.service.SequenceService;
 import com.example.sharding.service.User1Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -50,25 +52,17 @@ public class User1ServiceImpl implements User1Service {
         user.setOrderStatus(BusinessConstant.OrderStatusEnum.SAVED.getCode());
         user.setDataVersion(1);
         user1Mapper.insert(user);
-        try {
-            Future<String> task1 = sequenceService.doTaskOne();
-            Future<String> task2 = sequenceService.doTaskTwo();
-            Future<String> task3 = sequenceService.doTaskThree();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void insertUserList(List<UserEntity> userList) {
+    @Async
+    public Future<Integer> insertUserList(List<UserEntity> userList) {
         if (!CollectionUtils.isEmpty(userList)) {
             for (UserEntity user : userList) {
                 insertUser(user);
             }
         }
+        return new AsyncResult<>(userList.size());
     }
 
     @Override

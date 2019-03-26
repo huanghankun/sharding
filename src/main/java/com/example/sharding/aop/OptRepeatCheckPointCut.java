@@ -56,13 +56,12 @@ public class OptRepeatCheckPointCut {
             return pjp.proceed();
         }
 
-        Map<String, Object> toMap = EntityUtil.entity2Map(toData);
-        Map<String, Object> fromMap = EntityUtil.entity2Map(fromData);
+
         /**
          * 检查是否重复操作
          */
         LOGGER.info("checkRepeat..");
-        checkRepeat(toMap, fromMap);
+        checkRepeat(toData,  fromData );
 
         Object obj = pjp.proceed();
 
@@ -80,10 +79,12 @@ public class OptRepeatCheckPointCut {
      * 检查是否重复操作
      * 1,
      *
-     * @param toMap
-     * @param fromMap
+     * @param toData
+     * @param fromData
      */
-    private void checkRepeat(Map<String, Object> toMap, Map<String, Object> fromMap) {
+    private void checkRepeat(Object toData ,Object fromData ) {
+        Map<String, Object> toMap = EntityUtil.entity2Map(toData);
+        Map<String, Object> fromMap = EntityUtil.entity2Map(fromData);
         Integer statusTo = (Integer) toMap.get("orderStatus");
         Integer statusFrom = (Integer) fromMap.get("orderStatus");
         Map<Integer, List<BusinessConstant.OrderStatusEnum>> transitionMap = BusinessConstant.OrderStatusEnum.getTransitionMap();
@@ -95,6 +96,10 @@ public class OptRepeatCheckPointCut {
 
         Integer dataVersionTo = (Integer) toMap.get("dataVersion");
         Integer dataVersionFrom = (Integer) fromMap.get("dataVersion");
+
+        if (dataVersionFrom == null) {
+            throw new MyException("9997", " , 操作版本为空，请输入！ " );
+        }
 
         int compare = Integer.compare(dataVersionTo, dataVersionFrom);
         if (compare > 0) {

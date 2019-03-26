@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Created by Kane on 2018/1/17.
@@ -32,7 +33,7 @@ public interface User1Service {
      *
      * @param userList
      */
-    public void insertUserList(List<UserEntity> userList);
+    public Future<Integer> insertUserList(List<UserEntity> userList);
 
     /**
      * 通过ID查询
