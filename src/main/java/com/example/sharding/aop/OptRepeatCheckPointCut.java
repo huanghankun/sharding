@@ -37,7 +37,7 @@ public class OptRepeatCheckPointCut {
     /**
      * 更新操作单个参数的方法
      *
-     * @param pjp
+     * @param pjp    切面对象，
      * @param opt
      * @param toData
      * @return
@@ -46,12 +46,13 @@ public class OptRepeatCheckPointCut {
     @Around("com.example.sharding.aop.OptRepeatCheckPointCut.anyOpertion() && @annotation(opt)  && args(toData)")
     public Object cache(ProceedingJoinPoint pjp, OptRepeatCheck opt, Object toData) throws Throwable {
         Class clazz = opt.serviceType();
-        LOGGER.info("QueryMethodName = {}.{}({})", clazz.getName(), opt.methodName(), toData.getClass().getSimpleName());
+        LOGGER.info("检索服务名称 = {}.{}({})", clazz.getName(), opt.methodName(), toData.getClass().getSimpleName());
         Object service = SpringUtil.getBean(clazz);
         Method method = clazz.getMethod(opt.methodName(), toData.getClass());
         Object fromData = method.invoke(service, toData);
-        LOGGER.info("ToData = {}", JSONUtils.toJson(toData));
-        LOGGER.info("FromData = {}", JSONUtils.toJson(fromData));
+        LOGGER.info("原数据 = {}", JSONUtils.toJson(fromData));
+        LOGGER.info("目标数据 = {}", JSONUtils.toJson(toData));
+
         if (null == fromData) {
             return pjp.proceed();
         }
@@ -60,8 +61,7 @@ public class OptRepeatCheckPointCut {
         /**
          * 检查是否重复操作
          */
-        LOGGER.info("checkRepeat..");
-        checkRepeat(toData,  fromData );
+        checkRepeat(toData, fromData);
 
         Object obj = pjp.proceed();
 
@@ -82,23 +82,24 @@ public class OptRepeatCheckPointCut {
      * @param toData
      * @param fromData
      */
-    private void checkRepeat(Object toData ,Object fromData ) {
+    private void checkRepeat(Object toData, Object fromData) {
+        LOGGER.info("检查状态控制..");
         Map<String, Object> toMap = EntityUtil.entity2Map(toData);
         Map<String, Object> fromMap = EntityUtil.entity2Map(fromData);
         Integer statusTo = (Integer) toMap.get("orderStatus");
         Integer statusFrom = (Integer) fromMap.get("orderStatus");
         Map<Integer, List<BusinessConstant.OrderStatusEnum>> transitionMap = BusinessConstant.OrderStatusEnum.getTransitionMap();
         List<BusinessConstant.OrderStatusEnum> tList = transitionMap.get(statusTo);
-        LOGGER.info("statusFrom[{}],statusTo[{}]", statusFrom, statusTo);
+        LOGGER.info("来源状态[{}],目标[{}]", BusinessConstant.OrderStatusEnum.getMsgByCode(statusFrom), BusinessConstant.OrderStatusEnum.getMsgByCode(statusTo));
         if (!tList.contains(BusinessConstant.OrderStatusEnum.getByCode(statusFrom))) {
             throw new MyException("9999", "状态不可以从 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusFrom) + " 到 " + BusinessConstant.OrderStatusEnum.getMsgByCode(statusTo));
         }
-
+        LOGGER.info("检查版本号..");
         Integer dataVersionTo = (Integer) toMap.get("dataVersion");
         Integer dataVersionFrom = (Integer) fromMap.get("dataVersion");
 
         if (dataVersionFrom == null) {
-            throw new MyException("9997", " , 操作版本为空，请输入！ " );
+            throw new MyException("9997", " , 操作版本为空，请输入！ ");
         }
 
         int compare = Integer.compare(dataVersionTo, dataVersionFrom);

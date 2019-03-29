@@ -1,7 +1,12 @@
 package com.example.sharding.util;
 
+import com.example.sharding.entity.ProvinceEnum;
+import com.example.sharding.entity.UserEntity;
+import com.example.sharding.entity.UserSexEnum;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 
@@ -13,6 +18,7 @@ import java.util.*;
 public class EntityUtil {
 
     private static final char UNDER_LINE_CHAR = '_';
+    private static final String EMPTY_STR = "";
 
     private EntityUtil() {
     }
@@ -29,8 +35,7 @@ public class EntityUtil {
      * @throws InstantiationException
      * @throws Exception
      */
-    public static <T> List<T> list2Entity(List<Map<String, Object>> list,
-                                          Class<T> clazz) throws Exception {
+    public static <T> List<T> list2Entity(List<Map<String, Object>> list, Class<T> clazz) throws Exception {
 
         List<T> entityList = new ArrayList<>();
         for (Map<String, Object> map : list) {
@@ -52,25 +57,18 @@ public class EntityUtil {
         T entity = null;
         try {
             entity = clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e1) {
+        } catch (Exception e1) {
             e1.printStackTrace();
             return entity;
         }
-        for (String key : map.keySet()) {
-            Object value = map.get(key);
-            Field field = null;
+        for (Map.Entry<String, Object> e : map.entrySet()) {
             try {
-                field = clazz.getDeclaredField(key);
-            } catch (NoSuchFieldException | SecurityException e) {
-                e.printStackTrace();
-                continue;
-            }
-            // 暴力访问，取消age的私有权限。让对象可以访问
-            field.setAccessible(true);
-            try {
-                field.set(entity, value);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
+                Field field = clazz.getDeclaredField(e.getKey());
+                // 暴力访问，取消age的私有权限。让对象可以访问
+                field.setAccessible(true);
+                field.set(entity, e.getValue());
+            } catch (Exception ex) {
+                ex.printStackTrace();
                 continue;
             }
         }
@@ -84,13 +82,13 @@ public class EntityUtil {
      * @param clazz
      * @return
      */
-    public static <T> Map<String, String> entityAttr2TableColumnMap(
-            Class<T> clazz) {
-        Field[] fields = clazz.getFields();
-        Map<String, String> map = new HashMap<>(fields.length);
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            map.put(field.getName(), entityAttrName2ColumnName(field.getName()));
+    public static <T> Map<String, String> dbName2PojoNameMap(Class<T> clazz) {
+        List<Field> fields = getFieldList(clazz);
+        Map<String, String> map = new HashMap<>(fields.size());
+        if (null != fields && !fields.isEmpty()) {
+            for (Field f : fields) {
+                map.put(f.getName(), pojoName2DbName(f.getName()));
+            }
         }
         return map;
     }
@@ -103,16 +101,18 @@ public class EntityUtil {
      * @param columnName
      * @return
      */
-    public static String columnName2EntityAttrName(String columnName) {
-        if (columnName == null || "".equals(columnName.trim())) {
-            return "";
+    public static String dbName2PojoName(String columnName) {
+        if (columnName == null || EMPTY_STR.equals(columnName.trim())) {
+            return EMPTY_STR;
         }
         byte[] bs = columnName.toLowerCase().getBytes();
         boolean isDown = false;
 
         StringBuilder attrName = new StringBuilder();
-        for (int i = 0; i < bs.length; i++) {
-            byte b = bs[i];
+        for (byte b : bs) {
+            /**
+             * 下划线（_）的ASCII码95
+             */
             if (b == 95) {
                 isDown = true;
             } else {
@@ -126,8 +126,27 @@ public class EntityUtil {
         return attrName.toString();
     }
 
+
+    public static void main(String[] args) {
+        UserEntity u = new UserEntity();
+        u.setPassWord(UUID.randomUUID().toString());
+        u.setId(new Random().nextLong());
+        u.setProvince(ProvinceEnum.GUANGDONG);
+        u.setUserSex(UserSexEnum.MAN);
+        List<Field> fs = getFieldList(u.getClass());
+        for (Field f : fs) {
+            System.out.println(f.getName());
+        }
+        Map<String, String> map = dbName2PojoNameMap(UserEntity.class);
+        for (Map.Entry<String, String> e : map.entrySet()) {
+            System.out.println(e.getKey() + " : " + e.getValue());
+            String dbName = dbName2PojoName(e.getValue());
+            System.out.println("dbName : " + dbName);
+        }
+    }
+
     /**
-     * 将对象属性转化成键值对的map
+     * 将对象属性转化成键值对的map面
      * <p>
      * 日期:2019-03-26
      *
@@ -138,16 +157,27 @@ public class EntityUtil {
      */
     public static <T> Map<String, Object> entity2Map(Object entity) {
         try {
+            LinkedHashMap<String, Object> mapNew = new LinkedHashMap<String, Object>();
             if (entity instanceof Map) {
-                return (Map<String, Object>) entity;
+                Map<String, Object> from = (Map<String, Object>) entity;
+                for (Map.Entry entry : from.entrySet()) {
+                    mapNew.put(String.valueOf(entry.getKey()), entry.getValue());
+                }
+                return mapNew;
+            } else if (iSBaseType(entity)) {
+                mapNew.put("1", entity);
+                return mapNew;
             }
             Map<String, Object> map = getProperty(entity);
-            LinkedHashMap<String, Object> mapNew = new LinkedHashMap<String, Object>();
+
             for (String key : map.keySet()) {
                 Object value = map.get(key);
                 if (value == null) {
                     continue;
                 }
+                /**
+                 * 判断是否基础类型,是基础类型直接放
+                 */
                 if (iSBaseType(value)) {
                     mapNew.put(key, value);
                 } else if (value instanceof Collection) {
@@ -166,8 +196,11 @@ public class EntityUtil {
                             a.add(entity2Map(o));
                         }
                     }
-                    mapNew.put(key, a);
-                } else if (value instanceof Collection || value instanceof Map) {
+                    if (!a.isEmpty()) {
+                        mapNew.put(key, a);
+                    }
+
+                } else if (value instanceof Map) {
                     Map<String, Object> m = (Map<String, Object>) value;
                     Map<String, Object> m1 = new HashMap<String, Object>(m.size());
                     for (String k : m.keySet()) {
@@ -179,6 +212,9 @@ public class EntityUtil {
                         }
                     }
                     mapNew.put(key, m1);
+                } else if (value instanceof java.lang.Enum) {
+                    java.lang.Enum v = (java.lang.Enum) value;
+                    mapNew.put(key, v.name());
                 } else {
                     mapNew.put(key, entity2Map(value));
                 }
@@ -187,7 +223,7 @@ public class EntityUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new LinkedHashMap<String, Object>();
+        return new HashMap<String, Object>();
     }
 
     /**
@@ -197,14 +233,18 @@ public class EntityUtil {
      * @return
      */
     private static boolean iSBaseType(Object param) {
-        if (param instanceof Integer || param instanceof String
+        if (param instanceof Integer
+                || param instanceof Long
+                || param instanceof String
                 || param instanceof Double || param instanceof Float
                 || param instanceof Integer || param instanceof Boolean
                 || param instanceof Character || param instanceof Byte
                 || param instanceof Short || param instanceof Date) {
             return true;
         }
-        if (param instanceof Integer[] || param instanceof String[]
+        if (param instanceof Integer[]
+                || param instanceof Long[]
+                || param instanceof String[]
                 || param instanceof Double[] || param instanceof Float[]
                 || param instanceof Integer[] || param instanceof Boolean[]
                 || param instanceof Character[] || param instanceof Byte[]
@@ -215,23 +255,23 @@ public class EntityUtil {
     }
 
     /**
-     * 对象属性名==>数据表字段名
+     * 对象属性名 ==> 数据表字段名
+     * orderId  ==> order_id
      *
      * @param
      * @return
      */
-    private static String entityAttrName2ColumnName(String key) {
-        byte[] c = key.getBytes();
-        key = "";
-        for (int i = 0; i < c.length; i++) {
-            byte b = c[i];
+    private static String pojoName2DbName(String key) {
+        byte[] cs = key.getBytes();
+        StringBuilder sb = new StringBuilder();
+        for (byte c : cs) {
+            byte b = c;
             if (b <= 90 && b >= 65) {
-                key += "_" + (char) (b + 32);
-            } else {
-                key += (char) b;
+                sb.append('_');
             }
+            sb.append((char) b);
         }
-        return key.toUpperCase();
+        return sb.toString().toLowerCase();
     }
 
 
@@ -257,6 +297,12 @@ public class EntityUtil {
         Map<String, Object> map = new HashMap<String, Object>(list.size());
         for (Field f : list) {
             /**
+             * 3.0,抛除静态属性
+             */
+            if (Modifier.isStatic(f.getModifiers())) {
+                continue;
+            }
+            /**
              * 3.1,获得对象属性的值
              */
             Object value = invokeMethod(entityName, f.getName(), null);
@@ -279,7 +325,12 @@ public class EntityUtil {
         Field[] fields = clszz.getDeclaredFields();
         List<Field> fieldList = new ArrayList<Field>(fields.length);
         for (Field f : fields) {
-            fieldList.add(f);
+            /**
+             * 去静态成员
+             */
+            if (!Modifier.isStatic(f.getModifiers())) {
+                fieldList.add(f);
+            }
         }
         if (clszz.getSuperclass() != null) {
             List<Field> list = getFieldList(clszz.getSuperclass());
@@ -364,8 +415,7 @@ public class EntityUtil {
         if (fieldName.charAt(0) == UNDER_LINE_CHAR) {
             startIndex = 1;
         }
-        return "get" + fieldName.substring(startIndex, startIndex + 1).toUpperCase()
-                + fieldName.substring(startIndex + 1);
+        return "get" + fieldName.substring(startIndex, startIndex + 1).toUpperCase() + fieldName.substring(startIndex + 1);
     }
 
     /**
