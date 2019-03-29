@@ -5,8 +5,8 @@ package com.example.sharding.aop;
 import com.example.sharding.aop.exception.MyException;
 import com.example.sharding.common.BusinessConstant;
 import com.example.sharding.common.SpringUtil;
-import com.example.sharding.util.EntityUtil;
 import com.example.sharding.util.JSONUtils;
+import com.util.EntityUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Aspect
 @Component
